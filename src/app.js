@@ -38,29 +38,39 @@ app.post("/users", async (req, res) => {
 // 
 // fetch the multi document  from the database 
 
-app.get('/users', async(req, res) => {
-    
+app.get('/users', async (req, res) => {
     try {
         const user = await User.find({})
         res.send(user)
     } catch (error) {
         res.status(500).send()
     }
-        
     // res.send("this is the get method")
 });
 
 // fetch the document by the id 
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async (req, res) => {
     // fetch the data using the id of the document
-    User.findById(req.params.id, 'name age password')
-        .then((data) => {
-            if (!data) {
-                return res.status(404).send()
-            }
-            res.send(data)
-        })
-        .catch(() => res.status(500).send());
+
+    // User.findById(req.params.id, 'name age password')
+    //     .then((data) => {
+    //         if (!data) {
+    //             return res.status(404).send()
+    //         }
+    //         res.send(data)
+    //     })
+    //     .catch(() => res.status(500).send());
+    try {
+        const data = await User.findById(req.params.id)
+        if (!data) {
+            return res.status(404).send()
+        }
+        res.send(data)
+    } catch (error) {
+        res.status(500).send()
+    }
+
+
 });
 
 app.post('/tasks', (req, res) => {
