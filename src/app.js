@@ -20,12 +20,6 @@ app.get("/", (req, res) => {
 
 app.post("/users", async (req, res) => {
     const user = new User(req.body);
-
-    // user.save().then(() => {
-    //     res.send(user)
-    // }).catch((error) => {
-    //     res.status(400).send(error)
-    // });
     try {
         await user.save();
         res.status(201).send(user);
@@ -40,7 +34,8 @@ app.post("/users", async (req, res) => {
 
 app.get('/users', async (req, res) => {
     try {
-        const user = await User.find({})
+        const user =
+            await User.find({})
         res.send(user)
     } catch (error) {
         res.status(500).send()
@@ -50,16 +45,6 @@ app.get('/users', async (req, res) => {
 
 // fetch the document by the id 
 app.get('/users/:id', async (req, res) => {
-    // fetch the data using the id of the document
-
-    // User.findById(req.params.id, 'name age password')
-    //     .then((data) => {
-    //         if (!data) {
-    //             return res.status(404).send()
-    //         }
-    //         res.send(data)
-    //     })
-    //     .catch(() => res.status(500).send());
     try {
         const data = await User.findById(req.params.id)
         if (!data) {
@@ -69,9 +54,35 @@ app.get('/users/:id', async (req, res) => {
     } catch (error) {
         res.status(500).send()
     }
-
-
 });
+
+// update the user using the id 
+app.patch('/users/:id', async (req, res) => {
+    const updateValue = ['name', 'age', 'email', 'password'];
+    const update = Object.keys(req.body)
+    console.log(update)
+    const updateUser = update.every((value) => updateValue.includes(value))
+    console.log(updateUser)
+    if (!updateUser) {
+        return res.status(400).send({ error: "invalid updates" })
+    }
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body,
+            {
+                new: true,
+                runValidators: true
+            });
+        if (!user) {
+            return res.status(404).send()
+        }
+        res.send(user)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+});
+
+//  task related routes are define below
+
 
 app.post('/tasks', (req, res) => {
     const task = new Task(req.body);
@@ -92,6 +103,7 @@ app.get('/tasks', (req, res) => {
 
 
 app.get('/tasks/:id', (req, res) => {
+
     Task.findById(req.params.id)
         .then((data) => {
             if (!data) {
@@ -102,7 +114,26 @@ app.get('/tasks/:id', (req, res) => {
         .catch(() => res.status(500).send())
 })
 
-// update data in the database 
+// update task  in the database 
+
+app.patch('/tasks/:id', async (req, res) => {
+    const update = [ "title", "description", "completed" ];
+    const check = Object.keys(req.body);
+    const isValide = check.every((value) => update.includes(value));
+    if (!isValide) {
+        return res.status(400).send({error: "invalid update"})
+    }
+    try {
+        const task = await Task.findByIdAndUpdate(req.params.id, req.body,
+            { new: true, runValidators: true });
+        if (!task) {
+          return  res.status(404).send()
+        }    
+        res.send(task)
+    } catch (error) {
+        res.status(400).send(error);
+    }
+})
 
 // listening the server on port 3000 localhost 
 app.listen(port, () => {
@@ -132,3 +163,5 @@ app.listen(port, () => {
 //     }).then((count) => {
 //         console.log(count)
 //     });
+
+
