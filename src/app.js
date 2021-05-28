@@ -10,6 +10,12 @@ const port = process.env.PORT || 3000;
 app.use(express.json())
 // express routes
 
+const router = new express.Router();
+console.log(router)
+router.get('/testing', (req, res) => {
+    res.send("this is testing");
+})
+app.use(router)
 app.get("/", (req, res) => {
     res.send({ name: "custom routers", path: "homepage" })
 })
