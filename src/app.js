@@ -80,6 +80,23 @@ app.patch('/users/:id', async (req, res) => {
         res.status(400).send(error)
     }
 });
+// delete a user using it id 
+
+app.delete('/users/:id', async (req, res) => {
+    try {
+        const user =  await User.findByIdAndDelete(req.params.id);
+        if(!user) {
+            res.status(404).send();
+        }
+        res.send(user)
+
+    } catch (error) {
+        res.status(500).send()
+    }
+    
+})
+
+
 
 //  task related routes are define below
 
@@ -92,7 +109,7 @@ app.post('/tasks', (req, res) => {
     }).catch(() => {
         res.status(500).send()
     })
-})
+});
 // fetch the task from the database 
 app.get('/tasks', (req, res) => {
     Task.find({})
@@ -117,23 +134,38 @@ app.get('/tasks/:id', (req, res) => {
 // update task  in the database 
 
 app.patch('/tasks/:id', async (req, res) => {
-    const update = [ "title", "description", "completed" ];
+    const update = ["title", "description", "completed"];
     const check = Object.keys(req.body);
     const isValide = check.every((value) => update.includes(value));
     if (!isValide) {
-        return res.status(400).send({error: "invalid update"})
+        return res.status(400).send({ error: "invalid update" })
     }
     try {
         const task = await Task.findByIdAndUpdate(req.params.id, req.body,
             { new: true, runValidators: true });
         if (!task) {
-          return  res.status(404).send()
-        }    
+            return res.status(404).send()
+        }
         res.send(task)
     } catch (error) {
         res.status(400).send(error);
+    };
+});
+app.delete('/tasks/:id', async (req, res) => {
+    try {
+        const task =  await Task.findByIdAndDelete(req.params.id);
+        if(!task) {
+            res.status(404).send();
+        }
+        res.send(task)
+
+    } catch (error) {
+        res.status(500).send()
     }
+    
 })
+
+
 
 // listening the server on port 3000 localhost 
 app.listen(port, () => {
