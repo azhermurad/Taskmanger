@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcrypt');
 // first we have to defind the model 
-const User = mongoose.model("Users", {
+const userSchema = new mongoose.Schema({
     name: String,
     age: {
         type: Number,
-        required: true,
         validate(value) {
             if (value < 5 || value > 10) {
                 throw new Error('age must be greater than 5 and less than 10')
@@ -14,8 +13,9 @@ const User = mongoose.model("Users", {
     },
     email: {
         type: String,
+        required: true,
+        unique: true,
         lowercase: true,
-        default: "azherali@gmail.com"
     },
     password: {
         type: String,
@@ -25,4 +25,23 @@ const User = mongoose.model("Users", {
     }
 });
 
+userSchema.pre('save', async function (next) {
+    console.log("ismodiy", this.isModified('password'));
+    if (this.isModified('password')) {
+        const hashpassword = await bcrypt.hash(this.password, 8);
+        this.password = hashpassword;
+    };
+    next();
+});
+
+// we can also define the  method in here  which are always be use in the model object 
+// this is the static method this method are very help full in the user model funtion 
+// this method are define on the schema of the model so we can easily access this method from the 
+// user model 
+userSchema.static.findUser = () => {
+    console.log("hello azher ali you did a greate job");
+};
+const User = mongoose.model("Users", userSchema);
 module.exports = User;
+
+// we have to plan a logic that we have to used we have to used the 
