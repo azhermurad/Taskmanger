@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 // first we have to defind the model 
 const userSchema = new mongoose.Schema({
     name: String,
@@ -38,9 +39,16 @@ userSchema.pre('save', async function (next) {
 // this is the static method this method are very help full in the user model funtion 
 // this method are define on the schema of the model so we can easily access this method from the 
 // user model 
-userSchema.static.findUser = () => {
+userSchema.statics.findUser = () => {
     console.log("hello azher ali you did a greate job");
 };
+
+userSchema.methods.generateToken = async function () {
+    const token = jwt.sign({ _id: this._id.toString() },"mernstack")
+    // this.token=token;
+    // console.log("token is generated", token); 
+    return token;
+}
 const User = mongoose.model("Users", userSchema);
 module.exports = User;
 

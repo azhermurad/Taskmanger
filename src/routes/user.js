@@ -66,6 +66,7 @@ router.patch('/users/:id', async (req, res) => {
         if (!user) {
             return res.status(404).send()
         }
+        
         res.send(user)
     } catch (error) {
         res.status(400).send(error)
@@ -90,10 +91,10 @@ router.delete('/users/:id', async (req, res) => {
 // login user 
 
 router.post('/users/login',async (req, res) => {
-    console.log(req.body)
+    // User.findUser()
     try {
         const user = await User.findOne({email: req.body.email});
-        console.log(user)
+        // console.log(user)
         if(!user) {
             return res.status(404).send()
         };
@@ -101,11 +102,11 @@ router.post('/users/login',async (req, res) => {
         if(!match) {
             return res.status(400).send('unable to login')
         }
-        res.send(user)
+        const token = await user.generateToken();
+        res.send({user,token})
     } catch (error) {
         res.status(500).send()
     }
-    
 })
 
 
