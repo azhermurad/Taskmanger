@@ -23,11 +23,16 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 5,
         trim: true
-    }
+    },
+    tokens: [ {
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 });
 
 userSchema.pre('save', async function (next) {
-    console.log("ismodiy", this.isModified('password'));
     if (this.isModified('password')) {
         const hashpassword = await bcrypt.hash(this.password, 8);
         this.password = hashpassword;
@@ -44,12 +49,22 @@ userSchema.statics.findUser = () => {
 };
 
 userSchema.methods.generateToken = async function () {
-    const token = jwt.sign({ _id: this._id.toString() },"mernstack")
-    // this.token=token;
-    // console.log("token is generated", token); 
+
+    const token = jwt.sign({ _id: this._id.toString() } ,"mernstack")
+    this.tokens = this.tokens.concat({token});
+    await this.save()
     return token;
+}
+
+userSchema.methods.toJSON = function ( ) {
+    const user = this;
+    const userObject = user.toObject();
+    delete userObject.password
+    delete userObject.tokens
+    return userObject;
+    // return this;
 }
 const User = mongoose.model("Users", userSchema);
 module.exports = User;
-
+ 
 // we have to plan a logic that we have to used we have to used the 

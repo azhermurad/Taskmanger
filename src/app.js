@@ -5,6 +5,15 @@ const userRoute = require('./routes/user');
 const taskRouter = require('./routes/task');
 const port = process.env.PORT || 3000;
 
+// express middleware 
+
+// app.use((req, res, next) => {
+//     res.status(503).send("The server is currently unavailable because it down for maintenence ")
+//     next()
+// }) 
+
+
+
 // to parse the request of the url we have to used the prebuild express api 
 // this method parse the incoming request and convert into request 
 app.use(express.json())
@@ -42,3 +51,14 @@ app.listen(port, () => {
 //     });
 
 
+
+const animal = {
+    petName: 'cat'
+};
+
+animal.toJSON = function (params) {
+    console.log(this)
+    delete this.petName
+    return this
+} 
+console.log(JSON.stringify(animal))
