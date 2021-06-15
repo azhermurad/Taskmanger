@@ -91,7 +91,7 @@ router.post('/users/login', async (req, res) => {
         res.send({ user, token })
     } catch (error) {
         res.status(500).send(error)
-    }
+    };
 })
 
 router.post("/users/logout", auth, async (req, res) => {

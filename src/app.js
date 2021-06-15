@@ -26,6 +26,20 @@ app.listen(port, () => {
     console.log(`app listening at http://localhost:${port}`)
 })
 
+// const User = require('./db/models/user');
+
+// async function main() {
+//     const user = await User.findOne({name: "azherali"})
+//      await user.populate('task').execPopulate()
+//      console.log(user.task)
+// }
+
+
+// main()
+
+//  populate virtual 
+
+
 
 // there are 5 http method 
 // post get put update delete 
@@ -52,13 +66,46 @@ app.listen(port, () => {
 
 
 
-const animal = {
-    petName: 'cat'
-};
+// const animal = {
+//     petName: 'cat'
+// };
 
-animal.toJSON = function (params) {
-    console.log(this)
-    delete this.petName
-    return this
-} 
-console.log(JSON.stringify(animal))
+// animal.toJSON = function (params) {
+//     console.log(this)
+//     delete this.petName
+//     return this
+// } 
+// console.log(JSON.stringify(animal))
+
+
+
+const currentDate = new Date("2021-06-12T16:51:38.532Z");
+console.log(currentDate.toLocaleTimeString())
+
+// get the user by the id of it 
+const User = require('./db/models/task');
+app.get("/home", (req, res) => { 
+    console.log(req.query)
+    const mains = async () => {
+        const user = await User.find({}).sort({
+            completed : -1
+        })
+        res.send(user);
+    }
+    mains()
+});
+
+const multer = require('multer');
+var upload = multer({ dest: 'uploads/' })
+app.post('/profile', upload.single('avatar'), function (req, res, next) {
+    // req.file is the `avatar` file
+    console.log(req.file)
+    console.log(req.body)
+    res.send('your file is sucessfully add to the database')
+    // req.body will hold the text fields, if there were any
+  });
+
+
+
+
+  

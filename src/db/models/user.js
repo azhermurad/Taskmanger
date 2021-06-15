@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const Task = require('./task');
 // first we have to defind the model 
 const userSchema = new mongoose.Schema({
     name: String,
@@ -24,13 +25,17 @@ const userSchema = new mongoose.Schema({
         minlength: 5,
         trim: true
     },
-    tokens: [ {
+    tokens: [{
         token: {
             type: String,
             required: true
         }
     }]
-});
+},
+{
+    timestamps: true
+}
+);
 
 userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
@@ -39,6 +44,13 @@ userSchema.pre('save', async function (next) {
     };
     next();
 });
+// define a middleware to delete all the tasks created by the user
+
+userSchema.pre('remove', async function (next) {
+    const user = this;
+    await Task.deleteMany({author: user._id})    
+    next()
+})
 
 // we can also define the  method in here  which are always be use in the model object 
 // this is the static method this method are very help full in the user model funtion 
@@ -50,13 +62,13 @@ userSchema.statics.findUser = () => {
 
 userSchema.methods.generateToken = async function () {
 
-    const token = jwt.sign({ _id: this._id.toString() } ,"mernstack")
-    this.tokens = this.tokens.concat({token});
+    const token = jwt.sign({ _id: this._id.toString() }, "mernstack")
+    this.tokens = this.tokens.concat({ token });
     await this.save()
     return token;
 }
 
-userSchema.methods.toJSON = function ( ) {
+userSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
     delete userObject.password
@@ -64,7 +76,15 @@ userSchema.methods.toJSON = function ( ) {
     return userObject;
     // return this;
 }
+
+// virtual are not store on the database 
+userSchema.virtual('task', {
+    ref: 'Tasks',
+    localField: '_id',
+    foreignField: 'author'
+
+})
 const User = mongoose.model("Users", userSchema);
 module.exports = User;
- 
+
 // we have to plan a logic that we have to used we have to used the 
