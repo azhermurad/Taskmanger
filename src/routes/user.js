@@ -1,8 +1,11 @@
 const express = require('express');
+const sharp = require('sharp');
+const bcrypt = require('bcrypt');
+const multer = require('multer');
 const User = require('../db/models/user');
 const auth = require('../middleware/auth')
-const bcrypt = require('bcrypt');
 const router = new express.Router();
+
 
 
 router.post("/users", async (req, res) => {
@@ -115,6 +118,48 @@ router.post("/users/logoutall", auth, async (req, res) => {
 })
 
 
+const upload = multer({
+
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return cb(new Error("file must be jpe jpeg png"))
+        };
+        cb(null, true)
+    }
+});
+
+router.post("/users/me/image", auth, upload.single('avatar'), async (req, res) => {
+    const buffers= await sharp(req.file.buffer).resize(150,150).png().toBuffer();
+    console.log(buffers)
+
+    req.user.avatar = buffers;
+    await req.user.save();
+    res.send()
+}, (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+});
+
+router.delete('/users/me/image', auth, async (req, res) => {
+    req.user.avatar = undefined;
+    await req.user.save();
+    res.send(req.user)
+})
+
+router.get("/users/:id/image", async (req, res) => {
+   try {
+    const user = await User.findById(req.params.id);
+    if(!user || !user.avatar){
+        throw new Error()
+    }
+    res.set("Content-Type", "image/png");
+    res.send(user.avatar);  
+   } catch (error) {
+       res.status(404).send()
+   }  
+})
 
 
 module.exports = router;
@@ -126,9 +171,9 @@ module.exports = router;
 // fetch the document by the id 
 // router.get('/users/:id', async (req, res) => {
 //     try {
-//         const data = await User.findById(req.params.id)
-//         if (!data) {
-//             return res.status(404).send()
+    //         if (!data) {
+        //             return res.status(404).send()
+        //         const data = await User.findById(req.params.id)
 //         }
 //         res.send(data)
 //     } catch (error) {

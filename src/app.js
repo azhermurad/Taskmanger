@@ -3,7 +3,7 @@ const app = express();
 require("./db/mongoose")
 const userRoute = require('./routes/user');
 const taskRouter = require('./routes/task');
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
 // express middleware 
 
@@ -13,18 +13,18 @@ const port = process.env.PORT || 3000;
 // }) 
 
 
-
 // to parse the request of the url we have to used the prebuild express api 
 // this method parse the incoming request and convert into request 
-app.use(express.json())
-app.use(userRoute)
-app.use(taskRouter)
-
+app.use(express.json());
+app.use(userRoute);
+app.use(taskRouter);
 
 // listening the server on port 3000 localhost 
 app.listen(port, () => {
-    console.log(`app listening at http://localhost:${port}`)
+    console.log(`app listening at http://localhost:${port}`);
+
 })
+
 
 // const User = require('./db/models/user');
 
@@ -33,6 +33,7 @@ app.listen(port, () => {
 //      await user.populate('task').execPopulate()
 //      console.log(user.task)
 // }
+
 
 
 // main()
@@ -79,33 +80,73 @@ app.listen(port, () => {
 
 
 
-const currentDate = new Date("2021-06-12T16:51:38.532Z");
-console.log(currentDate.toLocaleTimeString())
+// const currentDate = new Date("2021-06-12T16:51:38.532Z");
+// console.log(currentDate.toLocaleTimeString())
 
-// get the user by the id of it 
-const User = require('./db/models/task');
-app.get("/home", (req, res) => { 
-    console.log(req.query)
-    const mains = async () => {
-        const user = await User.find({}).sort({
-            completed : -1
-        })
-        res.send(user);
-    }
-    mains()
-});
-
-const multer = require('multer');
-var upload = multer({ dest: 'uploads/' })
-app.post('/profile', upload.single('avatar'), function (req, res, next) {
-    // req.file is the `avatar` file
-    console.log(req.file)
-    console.log(req.body)
-    res.send('your file is sucessfully add to the database')
-    // req.body will hold the text fields, if there were any
-  });
+// // get the user by the id of it 
+// const User = require('./db/models/task');
+// app.get("/home", (req, res) => { 
+//     console.log(req.query)
+//     const mains = async () => {
+//         const user = await User.find({}).sort({
+//             completed : -1
+//         })
+//         res.send(user);
+//     }
+//     mains()
+// });
 
 
 
 
-  
+//wheath
+
+// how to upload the image to the server 
+// we have to define the function to which file should be upload to the server or which to skip
+// const multer = require('multer');
+// const upload = multer({
+//     dest: 'profileImage',
+//     limits: {
+//         fileSize: 1000000
+//     },
+//     fileFilter(req, file, cb) {
+//         if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+//              return cb(new Error("file must be jpe jpeg png"))
+//         };
+//         cb(null, true)
+//     }
+
+// }) 
+
+// app.post("/profile/me/image", upload.single('avatar'), (req, res) => {
+//     res.send("the router is define successfully")
+// }, (error, req, res, next) => {
+//     res.status(400).send({error: error.message});
+// })
+
+
+
+
+// error handeling in express
+
+
+// const errorMiddleware = (req, res, next) => {
+//     console.log("middleware is working properly");
+//     //this middleware is run before the callbacked is called
+//     throw new Error("error is throw from the error middleware")
+//     next();
+// }
+
+
+// // we have to define an error handler in the middleware of the function 
+// app.get("/home/me/profile", errorMiddleware, (req, res) => {
+//     console.log("router is define");
+//     res.send("the router is worked properly")
+
+// },
+//     (error, req, res, next) => {
+//         console.log(error)
+//         res.status(400).send({ error: error.message });
+//         // next()
+//     }
+// )
